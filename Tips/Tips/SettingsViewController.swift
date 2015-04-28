@@ -11,6 +11,9 @@ import UIKit
 class SettingsViewController: UIViewController {
 
     @IBOutlet weak var settingsTipController: UISegmentedControl!
+    @IBOutlet weak var descriptionLabel: UILabel!
+    @IBOutlet weak var tipPercentLabel: UILabel!
+    @IBOutlet weak var tipPercentField: UITextField!
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -33,9 +36,28 @@ class SettingsViewController: UIViewController {
     */
 
     @IBAction func onPercentSelected(sender: AnyObject) {
+        let tipControllerIndex = settingsTipController.selectedSegmentIndex
         var defaults = NSUserDefaults.standardUserDefaults()
-        defaults.setInteger(settingsTipController.selectedSegmentIndex, forKey: "default_tip_index")
+        defaults.setInteger(tipControllerIndex, forKey: "default_tip_index")
         defaults.synchronize()
+        if tipControllerIndex < 3
+        {
+            UIView.animateWithDuration(1, animations: {
+                self.descriptionLabel.frame.origin.y = 231
+                self.tipPercentField.alpha = 0
+                self.tipPercentLabel.alpha = 0
+            })
+        }
+        else
+        {
+            let tipPercentage = (tipPercentField.text as NSString).doubleValue
+            defaults.setDouble(tipPercentage, forKey: "default_custom_tip_percentage")
+            UIView.animateWithDuration(1, animations: {
+                self.descriptionLabel.frame.origin.y = 180
+                self.tipPercentField.alpha = 1
+                self.tipPercentLabel.alpha = 1
+            })
+        }
     }
     
     
