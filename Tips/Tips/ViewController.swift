@@ -34,7 +34,7 @@ class ViewController: UIViewController {
         tipControl.selectedSegmentIndex = tipControlIndex
         if tipControlIndex == 3
         {
-            let customTipAmount = defaults.doubleForKey("current_bill_amount")
+            let customTipAmount = defaults.doubleForKey("default_custom_tip_percentage")
             tipPercentField.text = "\(customTipAmount)"
             revealTipPercentage()
         }
@@ -58,6 +58,7 @@ class ViewController: UIViewController {
             return
         }
         billField.text = "\(billAmount)"
+        calculateTotalAmount()
     }
 
     override func viewWillDisappear(animated: Bool) {
@@ -126,6 +127,7 @@ class ViewController: UIViewController {
         {
             hideTipPercentage()
         }
+        calculateTotalAmount()
     }
     
     @IBAction func onEditingChanged(sender: AnyObject) {

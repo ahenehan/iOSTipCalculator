@@ -14,6 +14,9 @@ class SettingsViewController: UIViewController {
     @IBOutlet weak var descriptionLabel: UILabel!
     @IBOutlet weak var tipPercentLabel: UILabel!
     @IBOutlet weak var tipPercentField: UITextField!
+    
+    var hasShiftedView = false
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -34,23 +37,61 @@ class SettingsViewController: UIViewController {
         // Pass the selected object to the new view controller.
     }
     */
-
+    
+    override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(animated)
+        var defaults = NSUserDefaults.standardUserDefaults()
+        let tipControlIndex = defaults.integerForKey("default_tip_index")
+        settingsTipController.selectedSegmentIndex = tipControlIndex
+        if tipControlIndex == 3
+        {
+            let customTipAmount = defaults.doubleForKey("default_custom_tip_percentage")
+            tipPercentField.text = "\(customTipAmount)"
+            revealTipPercentage()
+        }
+    }
+    
+    func hideTipPercentage()
+    {
+        UIView.animateWithDuration(1, animations: {
+            self.descriptionLabel.frame.origin.y = 231
+            self.tipPercentField.alpha = 0
+            self.tipPercentLabel.alpha = 0
+        })
+        hasShiftedView = false
+    }
+    
+    func revealTipPercentage()
+    {
+        UIView.animateWithDuration(1, animations: {
+            self.descriptionLabel.frame.origin.y = 180
+            self.tipPercentField.alpha = 1
+            self.tipPercentLabel.alpha = 1
+        })
+        hasShiftedView = true
+    }
+    
     @IBAction func onPercentSelected(sender: AnyObject) {
+        if settingsTipController.selectedSegmentIndex == 3 && !hasShiftedView
+        {
+            revealTipPercentage()
+        }
+        else if hasShiftedView
+        {
+            hideTipPercentage()
+        }
+    }
+    
+    
+    @IBAction func onBackButton(sender: AnyObject) {
         let tipControllerIndex = settingsTipController.selectedSegmentIndex
         var defaults = NSUserDefaults.standardUserDefaults()
         defaults.setInteger(tipControllerIndex, forKey: "default_tip_index")
-        defaults.synchronize()
-        if tipControllerIndex < 3
-        {
-            UIView.animateWithDuration(1, animations: {
-                self.descriptionLabel.frame.origin.y = 231
-                self.tipPercentField.alpha = 0
-                self.tipPercentLabel.alpha = 0
-            })
-        }
-        else
+        
+        if tipControllerIndex == 3
         {
             let tipPercentage = (tipPercentField.text as NSString).doubleValue
+            var test = tipPercentage
             defaults.setDouble(tipPercentage, forKey: "default_custom_tip_percentage")
             UIView.animateWithDuration(1, animations: {
                 self.descriptionLabel.frame.origin.y = 180
@@ -58,10 +99,7 @@ class SettingsViewController: UIViewController {
                 self.tipPercentLabel.alpha = 1
             })
         }
-    }
-    
-    
-    @IBAction func onBackButton(sender: AnyObject) {
+        defaults.synchronize()
         dismissViewControllerAnimated(true, completion: nil)
     }
 }
